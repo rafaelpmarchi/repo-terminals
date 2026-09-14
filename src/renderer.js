@@ -1081,4 +1081,66 @@ window.addEventListener('drop', (e) => {
   }
 });
 
+// ---------- Uso das IAs (limites semanais do Claude) ----------
+(function initAiUsage() {
+  const box = document.getElementById('ai-usage');
+  const body = document.getElementById('ai-usage-body');
+  const planEl = document.getElementById('ai-usage-plan');
+
+  function fmtReset(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const dia = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '');
+    const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `renova ${dia} ${hora}`;
+  }
+
+  function msg(text) {
+    body.replaceChildren();
+    const el = document.createElement('div');
+    el.className = 'ai-usage-msg';
+    el.textContent = text;
+    body.appendChild(el);
+  }
+
+  async function update() {
+    box.classList.add('loading');
+    let data;
+    try { data = await window.api.aiUsage(); } catch { data = { error: 'Falha ao consultar uso' }; }
+    box.classList.remove('loading');
+    planEl.textContent = data.plan || '';
+    if (data.error) { msg(data.error); return; }
+    if (!data.limits.length) { msg('Sem limites semanais'); return; }
+    body.replaceChildren();
+    for (const l of data.limits) {
+      const pct = Math.max(0, Math.min(100, Math.round(l.percent || 0)));
+      const row = document.createElement('div');
+      row.className = 'ai-limit' + (pct >= 90 ? ' crit' : pct >= 75 ? ' warn' : '');
+      const top = document.createElement('div');
+      top.className = 'ai-limit-top';
+      const name = document.createElement('span');
+      name.textContent = l.label;
+      const val = document.createElement('span');
+      val.className = 'pct';
+      val.textContent = pct + '%';
+      top.append(name, val);
+      const bar = document.createElement('div');
+      bar.className = 'ai-limit-bar';
+      const fill = document.createElement('div');
+      fill.className = 'ai-limit-fill';
+      fill.style.width = pct + '%';
+      bar.appendChild(fill);
+      const reset = document.createElement('div');
+      reset.className = 'ai-limit-reset';
+      reset.textContent = fmtReset(l.resetsAt);
+      row.append(top, bar, reset);
+      body.appendChild(row);
+    }
+  }
+
+  box.addEventListener('click', update);
+  update();
+  setInterval(update, 5 * 60 * 1000);
+})();
+
 init();

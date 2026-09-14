@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('api', {
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   gitInfo: (dir) => ipcRenderer.invoke('git:info', dir),
   gitBranches: (dir) => ipcRenderer.invoke('git:branches', dir),
+  aiUsage: () => ipcRenderer.invoke('ai:usage'),
   pasteImage: () => ipcRenderer.invoke('clipboard:saveImage'),
   saveImageBuffer: (bytes) => ipcRenderer.invoke('clipboard:saveImageBuffer', bytes),
 

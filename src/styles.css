@@ -370,6 +370,39 @@ html, body {
 }
 #add-repo:hover { background: #1177bb; }
 
+/* ---- Uso das IAs ---- */
+#ai-usage {
+  margin: 0 8px 8px;
+  padding: 8px 10px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #1e1e1e;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-size: 11.5px;
+}
+#ai-usage:hover { border-color: #444; }
+#ai-usage.loading { opacity: 0.6; }
+.ai-usage-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #888;
+  margin-bottom: 6px;
+}
+#ai-usage-plan { text-transform: none; color: #666; }
+.ai-limit + .ai-limit { margin-top: 7px; }
+.ai-limit-top { display: flex; justify-content: space-between; gap: 6px; color: #bbb; }
+.ai-limit-top .pct { font-variant-numeric: tabular-nums; color: #ddd; }
+.ai-limit-bar { height: 5px; margin-top: 3px; background: #333; border-radius: 3px; overflow: hidden; }
+.ai-limit-fill { height: 100%; background: #3794ff; border-radius: 3px; }
+.ai-limit.warn .ai-limit-fill { background: #d7a33c; }
+.ai-limit.crit .ai-limit-fill { background: #e05252; }
+.ai-limit-reset { margin-top: 2px; font-size: 10.5px; color: #666; }
+.ai-usage-msg { color: #777; }
+
 /* ---- Terminais aninhados sob o repo ---- */
 .term-sub {
   display: flex;

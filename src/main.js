@@ -100,6 +100,7 @@ function setupIpc(win) {
   ipcMain.handle('shell:openExternal', (_e, url) => shell.openExternal(url));
   ipcMain.handle('git:info', (_e, dir) => getGitInfo(dir));
   ipcMain.handle('git:branches', (_e, dir) => getBranches(dir));
+  ipcMain.handle('ai:usage', () => getAiUsage());
   ipcMain.handle('clipboard:saveImage', () => {
     const img = clipboard.readImage();
     if (img.isEmpty()) return null;
@@ -113,6 +114,48 @@ function setupIpc(win) {
       return file;
     } catch { return null; }
   });
+}
+
+// Uso dos limites do Claude (mesmo endpoint que o /usage do Claude Code consulta).
+// Só lê o token salvo pelo Claude Code; não faz refresh para não invalidar a sessão dele.
+async function getAiUsage() {
+  const dir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+  let oauth;
+  try {
+    oauth = JSON.parse(fs.readFileSync(path.join(dir, '.credentials.json'), 'utf8')).claudeAiOauth;
+  } catch {
+    return { error: 'Claude Code não encontrado' };
+  }
+  if (!oauth || !oauth.accessToken) return { error: 'Sem login no Claude Code' };
+  if (oauth.expiresAt && oauth.expiresAt < Date.now()) return { error: 'Token expirado — abra o Claude Code' };
+  try {
+    const res = await fetch('https://api.anthropic.com/api/oauth/usage', {
+      headers: {
+        Authorization: `Bearer ${oauth.accessToken}`,
+        'anthropic-beta': 'oauth-2025-04-20',
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return { error: `Erro HTTP ${res.status}` };
+    const data = await res.json();
+    let limits = Array.isArray(data.limits)
+      ? data.limits
+          .filter((l) => l.group === 'weekly')
+          .map((l) => ({
+            label: l.scope && l.scope.model && l.scope.model.display_name ? l.scope.model.display_name : 'Todos os modelos',
+            percent: l.percent,
+            resetsAt: l.resets_at,
+            severity: l.severity,
+          }))
+      : [];
+    if (!limits.length && data.seven_day) {
+      limits = [{ label: 'Todos os modelos', percent: data.seven_day.utilization, resetsAt: data.seven_day.resets_at }];
+    }
+    return { plan: oauth.subscriptionType || null, limits };
+  } catch (e) {
+    return { error: 'Falha ao consultar uso' };
+  }
 }
 
 function getBranches(dir) {
