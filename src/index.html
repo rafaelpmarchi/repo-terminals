@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+  <title>Terminals</title>
+  <link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <div class="sidebar-header"><span>Repositorios</span></div>
+      <ul id="repo-list"></ul>
+      <button id="add-repo">+ Adicionar pasta</button>
+    </aside>
+
+    <div id="sidebar-resizer"></div>
+
+    <main id="main">
+      <div id="tabs"></div>
+      <div id="search-bar" class="hidden">
+        <input id="search-input" type="text" placeholder="Buscar no terminal..." />
+        <span id="search-prev" title="Anterior (Shift+Enter)">&#9650;</span>
+        <span id="search-next" title="Proximo (Enter)">&#9660;</span>
+        <span id="search-close" title="Fechar (Esc)">&times;</span>
+      </div>
+      <div id="terminals"></div>
+      <div id="empty-state">
+        <p class="es-msg">Selecione um repositorio na barra lateral.</p>
+        <p class="hint">Ctrl+Tab alterna entre terminais &nbsp;|&nbsp; Ctrl+W fecha o atual</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../node_modules/@xterm/xterm/lib/xterm.js"></script>
+  <script src="../node_modules/@xterm/addon-fit/lib/addon-fit.js"></script>
+  <script src="../node_modules/@xterm/addon-canvas/lib/addon-canvas.js"></script>
+  <script src="../node_modules/@xterm/addon-search/lib/addon-search.js"></script>
+  <script src="../node_modules/@xterm/addon-web-links/lib/addon-web-links.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

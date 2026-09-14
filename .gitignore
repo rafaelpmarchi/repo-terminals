@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-novo/
+build-out/
+release/
+*.log
+.DS_Store
+Thumbs.db
